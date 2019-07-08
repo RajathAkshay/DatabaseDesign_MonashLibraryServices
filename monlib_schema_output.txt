@@ -1,0 +1,871 @@
+SQL> 
+SQL> -- Name: Rajath Akshay Vanikul
+SQL> -- Student ID: 29498724
+SQL> 
+SQL> 
+SQL> DROP SEQUENCE branch_branch_code_seq;
+
+Sequence BRANCH_BRANCH_CODE_SEQ dropped.
+
+SQL> 
+SQL> DROP SEQUENCE author_author_id_seq;
+
+Sequence AUTHOR_AUTHOR_ID_SEQ dropped.
+
+SQL> 
+SQL> DROP SEQUENCE bor_borrower_id_seq;
+
+Sequence BOR_BORROWER_ID_SEQ dropped.
+
+SQL> 
+SQL> DROP SEQUENCE manager_manager_id_seq;
+
+Sequence MANAGER_MANAGER_ID_SEQ dropped.
+
+SQL> 
+SQL> DROP SEQUENCE publisher_publisher_id_seq;
+
+Sequence PUBLISHER_PUBLISHER_ID_SEQ dropped.
+
+SQL> 
+SQL> 
+SQL> 
+SQL> DROP TABLE author CASCADE CONSTRAINTS;
+
+Table AUTHOR dropped.
+
+SQL> 
+SQL> DROP TABLE book CASCADE CONSTRAINTS;
+
+Table BOOK dropped.
+
+SQL> 
+SQL> DROP TABLE borrower CASCADE CONSTRAINTS;
+
+Table BORROWER dropped.
+
+SQL> 
+SQL> DROP TABLE borrower_group CASCADE CONSTRAINTS;
+
+Table BORROWER_GROUP dropped.
+
+SQL> 
+SQL> DROP TABLE branch CASCADE CONSTRAINTS;
+
+Table BRANCH dropped.
+
+SQL> 
+SQL> DROP TABLE isbn_identifier CASCADE CONSTRAINTS;
+
+Table ISBN_IDENTIFIER dropped.
+
+SQL> 
+SQL> DROP TABLE loan CASCADE CONSTRAINTS;
+
+Table LOAN dropped.
+
+SQL> 
+SQL> DROP TABLE manager CASCADE CONSTRAINTS;
+
+Table MANAGER dropped.
+
+SQL> 
+SQL> DROP TABLE penalty CASCADE CONSTRAINTS;
+
+Table PENALTY dropped.
+
+SQL> 
+SQL> DROP TABLE publisher CASCADE CONSTRAINTS;
+
+Table PUBLISHER dropped.
+
+SQL> 
+SQL> DROP TABLE reservation CASCADE CONSTRAINTS;
+
+Table RESERVATION dropped.
+
+SQL> 
+SQL> DROP TABLE subject CASCADE CONSTRAINTS;
+
+Table SUBJECT dropped.
+
+SQL> 
+SQL> DROP TABLE title CASCADE CONSTRAINTS;
+
+Table TITLE dropped.
+
+SQL> 
+SQL> DROP TABLE title_author CASCADE CONSTRAINTS;
+
+Table TITLE_AUTHOR dropped.
+
+SQL> 
+SQL> DROP TABLE title_subject CASCADE CONSTRAINTS;
+
+Table TITLE_SUBJECT dropped.
+
+SQL> 
+SQL> DROP TABLE type CASCADE CONSTRAINTS;
+
+Table TYPE dropped.
+
+SQL> 
+SQL> CREATE TABLE author (
+  2      author_id     NUMBER(5) NOT NULL,
+  3      author_name   VARCHAR2(50 CHAR) NOT NULL
+  4  );
+
+Table AUTHOR created.
+
+SQL> 
+SQL> COMMENT ON COLUMN author.author_id IS
+  2      'author_ID - creates unique number for each author.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN author.author_name IS
+  2      'author_name - shows the name of each author.';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE author ADD CONSTRAINT author_pk PRIMARY KEY ( author_id );
+
+Table AUTHOR altered.
+
+SQL> 
+SQL> CREATE TABLE book (
+  2      barcode              NUMBER(10) NOT NULL,
+  3      status               VARCHAR2(20 CHAR) NOT NULL,
+  4      branch_branch_code   NUMBER(3) NOT NULL,
+  5      title_call_number    VARCHAR2(20 CHAR) NOT NULL
+  6  );
+
+Table BOOK created.
+
+SQL> 
+SQL> ALTER TABLE book
+  2      ADD CHECK ( status IN (
+  3          'available',
+  4          'reserve',
+  5          'borrowed'
+  6      ) );
+
+Table BOOK altered.
+
+SQL> 
+SQL> COMMENT ON COLUMN book.barcode IS
+  2      'barcode is the unique number issues by library for every book. ';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN book.status IS
+  2      'status - contains information about borrowal properties of book.
+  3  this attribute is restricted to "available" or "reserve" or "borrowed" entries. '
+  4  ;
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE book ADD CONSTRAINT book_pk PRIMARY KEY ( barcode );
+
+Table BOOK altered.
+
+SQL> 
+SQL> CREATE TABLE borrower (
+  2      borrower_id                      NUMBER(10) NOT NULL,
+  3      borrower_name                    VARCHAR2(50 CHAR) NOT NULL,
+  4      borrower_address                 VARCHAR2(100 CHAR) NOT NULL,
+  5      borrower_flag                    VARCHAR2(10 CHAR) NOT NULL,
+  6      notes                            VARCHAR2(50 CHAR),
+  7      branch_branch_code               NUMBER(3) NOT NULL,
+  8      borrower_group_classification    VARCHAR2(12 CHAR) NOT NULL,
+  9      borrower_group_classification2   VARCHAR2(12 CHAR) NOT NULL
+ 10  );
+
+Table BORROWER created.
+
+SQL> 
+SQL> ALTER TABLE borrower
+  2      ADD CHECK ( borrower_flag IN (
+  3          'allow',
+  4          'restrict'
+  5      ) );
+
+Table BORROWER altered.
+
+SQL> 
+SQL> COMMENT ON COLUMN borrower.borrower_id IS
+  2      'borrower_ID - creates a unique number to identify the borrower.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN borrower.borrower_name IS
+  2      'borrower_name - defines the name of the borrower.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN borrower.borrower_address IS
+  2      'borrower_address - shows the address to reach a borrower.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN borrower.borrower_flag IS
+  2      'borrower_flag - shows if the borrower is allowed to borrow further books or not.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN borrower.notes IS
+  2      'notes - keeps a trach of comments on a borrower.';
+
+Comment created.
+
+SQL> 
+SQL> CREATE UNIQUE INDEX borrower__idx ON
+  2      borrower ( borrower_group_classification ASC );
+
+INDEX BORROWER__IDX created.
+
+SQL> 
+SQL> ALTER TABLE borrower ADD CONSTRAINT borrower_pk PRIMARY KEY ( borrower_id );
+
+Table BORROWER altered.
+
+SQL> 
+SQL> CREATE TABLE borrower_group (
+  2      classification         VARCHAR2(12 CHAR) NOT NULL,
+  3      max_days_of_borrowal   NUMBER(2) NOT NULL,
+  4      borrower_borrower_id   NUMBER NOT NULL
+  5  );
+
+Table BORROWER_GROUP created.
+
+SQL> 
+SQL> ALTER TABLE borrower_group
+  2      ADD CHECK ( classification IN (
+  3          'junior',
+  4          'adult',
+  5          'organisation'
+  6      ) );
+
+Table BORROWER_GROUP altered.
+
+SQL> 
+SQL> COMMENT ON COLUMN borrower_group.classification IS
+  2      'classification of each borrower is entered here.
+  3  this attribute tells us if the borrower is junior or adult or belongs to an organisation. '
+  4  ;
+
+Comment created.
+
+SQL> 
+SQL> CREATE UNIQUE INDEX borrower_group__idx ON
+  2      borrower_group ( borrower_borrower_id ASC );
+
+INDEX BORROWER_GROUP__IDX created.
+
+SQL> 
+SQL> ALTER TABLE borrower_group ADD CONSTRAINT borrower_group_pk PRIMARY KEY ( classification );
+
+Table BORROWER_GROUP altered.
+
+SQL> 
+SQL> CREATE TABLE branch (
+  2      branch_code          NUMBER(3) NOT NULL,
+  3      branch_name          VARCHAR2(50 CHAR) NOT NULL,
+  4      branch_address       VARCHAR2(100 CHAR) NOT NULL,
+  5      branch_phone_no      NUMBER(10) NOT NULL,
+  6      manager_manager_id   NUMBER(10) NOT NULL
+  7  );
+
+Table BRANCH created.
+
+SQL> 
+SQL> COMMENT ON COLUMN branch.branch_code IS
+  2      'branch_code - unique code given to every branch under the municipality.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN branch.branch_name IS
+  2      'branch_name - shows the name of each branch under the municipality.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN branch.branch_address IS
+  2      'branch_address - shows the address of each branch under the municipality.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN branch.branch_phone_no IS
+  2      'branch_name - shows the name of each branch under the municipality.';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE branch ADD CONSTRAINT branch_pk PRIMARY KEY ( branch_code );
+
+Table BRANCH altered.
+
+SQL> 
+SQL> CREATE TABLE isbn_identifier (
+  2      isbn                VARCHAR2(15 CHAR) NOT NULL,
+  3      title_call_number   VARCHAR2(20 CHAR) NOT NULL
+  4  );
+
+Table ISBN_IDENTIFIER created.
+
+SQL> 
+SQL> COMMENT ON COLUMN isbn_identifier.isbn IS
+  2      'ISBN - is the commercial identifier for each title.';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE isbn_identifier ADD CONSTRAINT isbn_identifier_pk PRIMARY KEY ( isbn );
+
+Table ISBN_IDENTIFIER altered.
+
+SQL> 
+SQL> CREATE TABLE loan (
+  2      loan_date              DATE NOT NULL,
+  3      expected_returndate    DATE NOT NULL,
+  4      actual_returndate      DATE,
+  5      book_barcode           NUMBER(10) NOT NULL,
+  6      borrower_borrower_id   NUMBER(10) NOT NULL
+  7  );
+
+Table LOAN created.
+
+SQL> 
+SQL> COMMENT ON COLUMN loan.loan_date IS
+  2      'loan_date - shows the date in which book was borrowed.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN loan.expected_returndate IS
+  2      'expected_returndate - shows the lates date for returning a borrowed book.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN loan.actual_returndate IS
+  2      'actual_date - shows the date of return of borrowed book.';
+
+Comment created.
+
+SQL> 
+SQL> CREATE UNIQUE INDEX loanv1__idx ON
+  2      loan ( book_barcode ASC );
+
+INDEX LOANV1__IDX created.
+
+SQL> 
+SQL> ALTER TABLE loan
+  2      ADD CONSTRAINT loan_pk PRIMARY KEY ( loan_date,
+  3      book_barcode,
+  4      borrower_borrower_id );
+
+Table LOAN altered.
+
+SQL> 
+SQL> CREATE TABLE manager (
+  2      manager_id           NUMBER(10) NOT NULL,
+  3      manager_name         VARCHAR2(50 CHAR) NOT NULL,
+  4      manager_phone_no     NUMBER(10) NOT NULL,
+  5      branch_branch_code   NUMBER(3) NOT NULL
+  6  );
+
+Table MANAGER created.
+
+SQL> 
+SQL> COMMENT ON COLUMN manager.manager_id IS
+  2      'manager_ID - contains unique number for each manager.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN manager.manager_name IS
+  2      'manager_name - contains name of each manager';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN manager.manager_phone_no IS
+  2      'manager_phone_no - contains contact number of each manager.';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE manager ADD CONSTRAINT manager_pk PRIMARY KEY ( manager_id );
+
+Table MANAGER altered.
+
+SQL> 
+SQL> CREATE TABLE penalty (
+  2      payment_amount              NUMBER(5) NOT NULL,
+  3      payment_date                DATE NOT NULL,
+  4      loan_loan_date              DATE NOT NULL,
+  5      loan_book_barcode           NUMBER(10) NOT NULL,
+  6      loan_borrower_borrower_id   NUMBER(10) NOT NULL
+  7  );
+
+Table PENALTY created.
+
+SQL> 
+SQL> COMMENT ON COLUMN penalty.payment_amount IS
+  2      'payment_amount - shows the amount over due to pay.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN penalty.payment_date IS
+  2      'payment_date - shows the date of payment.';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE penalty
+  2      ADD CONSTRAINT penalty_pk PRIMARY KEY ( loan_loan_date,
+  3      loan_book_barcode,
+  4      loan_borrower_borrower_id );
+
+Table PENALTY altered.
+
+SQL> 
+SQL> CREATE TABLE publisher (
+  2      publisher_id     NUMBER(5) NOT NULL,
+  3      publisher_name   VARCHAR2(50 CHAR) NOT NULL
+  4  );
+
+Table PUBLISHER created.
+
+SQL> 
+SQL> COMMENT ON COLUMN publisher.publisher_id IS
+  2      'publisher_ID - creates unique number for each publisher. ';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN publisher.publisher_name IS
+  2      'publisher_name - shows the name of publisher.';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE publisher ADD CONSTRAINT publisher_pk PRIMARY KEY ( publisher_id );
+
+Table PUBLISHER altered.
+
+SQL> 
+SQL> CREATE TABLE reservation (
+  2      reservation_date       DATE NOT NULL,
+  3      book_barcode           NUMBER(10) NOT NULL,
+  4      borrower_borrower_id   NUMBER(10) NOT NULL
+  5  );
+
+Table RESERVATION created.
+
+SQL> 
+SQL> ALTER TABLE reservation
+  2      ADD CONSTRAINT reservation_pk PRIMARY KEY ( book_barcode,
+  3      reservation_date,
+  4      borrower_borrower_id );
+
+Table RESERVATION altered.
+
+SQL> 
+SQL> CREATE TABLE subject (
+  2      subject   VARCHAR2(20 CHAR) NOT NULL
+  3  );
+
+Table SUBJECT created.
+
+SQL> 
+SQL> COMMENT ON COLUMN subject.subject IS
+  2      'subject - shows the genre of each title.';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE subject ADD CONSTRAINT subject_pk PRIMARY KEY ( subject );
+
+Table SUBJECT altered.
+
+SQL> 
+SQL> CREATE TABLE title (
+  2      call_number              VARCHAR2(20 CHAR) NOT NULL,
+  3      title                    VARCHAR2(50 CHAR) NOT NULL,
+  4      description              VARCHAR2(1000 CHAR) NOT NULL,
+  5      number_pages             NUMBER(5) NOT NULL,
+  6      language                 VARCHAR2(10 CHAR) NOT NULL,
+  7      date_published           DATE NOT NULL,
+  8      edition                  NUMBER(2) NOT NULL,
+  9      purchase_price           NUMBER(5,2) NOT NULL,
+ 10      notes                    VARCHAR2(100 CHAR),
+ 11      publisher_publisher_id   NUMBER(5) NOT NULL,
+ 12      type_classification      VARCHAR2(10 CHAR) NOT NULL,
+ 13      type_reading_level       NUMBER(2) NOT NULL
+ 14  );
+
+Table TITLE created.
+
+SQL> 
+SQL> COMMENT ON COLUMN title.call_number IS
+  2      'call_number - is a unique set of code describes properties of the title.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN title.title IS
+  2      'title - defines the cover of a particular book.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN title.description IS
+  2      'description - contains a brief of that title.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN title.number_pages IS
+  2      'number_pages - shows the number of pages in a book.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN title.language IS
+  2      'language - shows the language a book is written.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN title.date_published IS
+  2      'date_published - shows the published date for a book.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN title.edition IS
+  2      'edition - contains the information on version.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN title.purchase_price IS
+  2      'purchase_price - will show the price of a book.';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN title.notes IS
+  2      'notes - can be used to note comments on a title';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE title ADD CONSTRAINT title_pk PRIMARY KEY ( call_number );
+
+Table TITLE altered.
+
+SQL> 
+SQL> CREATE TABLE title_author (
+  2      title_call_number   VARCHAR2(20 CHAR) NOT NULL,
+  3      author_author_id    NUMBER(5) NOT NULL
+  4  );
+
+Table TITLE_AUTHOR created.
+
+SQL> 
+SQL> ALTER TABLE title_author ADD CONSTRAINT title_author_pk PRIMARY KEY ( title_call_number,
+  2  author_author_id );
+
+Table TITLE_AUTHOR altered.
+
+SQL> 
+SQL> CREATE TABLE title_subject (
+  2      title_call_number   VARCHAR2(20 CHAR) NOT NULL,
+  3      subject_subject     VARCHAR2(20 CHAR) NOT NULL
+  4  );
+
+Table TITLE_SUBJECT created.
+
+SQL> 
+SQL> ALTER TABLE title_subject ADD CONSTRAINT title_subject_pk PRIMARY KEY ( title_call_number,
+  2  subject_subject );
+
+Table TITLE_SUBJECT altered.
+
+SQL> 
+SQL> CREATE TABLE type (
+  2      classification   VARCHAR2(10 CHAR) NOT NULL,
+  3      reading_level    NUMBER(2) NOT NULL
+  4  );
+
+Table TYPE created.
+
+SQL> 
+SQL> ALTER TABLE type
+  2      ADD CHECK ( classification IN (
+  3          'reference',
+  4          'fiction'
+  5      ) );
+
+Table TYPE altered.
+
+SQL> 
+SQL> ALTER TABLE type
+  2      ADD CHECK ( reading_level IN (
+  3          0,
+  4          1,
+  5          2,
+  6          3,
+  7          4,
+  8          5,
+  9          6,
+ 10          7,
+ 11          8,
+ 12          9,
+ 13          10,
+ 14          11,
+ 15          12,
+ 16          13,
+ 17          14,
+ 18          15,
+ 19          16,
+ 20          17,
+ 21          18,
+ 22          19,
+ 23          20,
+ 24          21,
+ 25          22,
+ 26          23,
+ 27          24,
+ 28          25,
+ 29          26,
+ 30          27,
+ 31          28,
+ 32          29,
+ 33          30
+ 34      ) );
+
+Table TYPE altered.
+
+SQL> 
+SQL> ALTER TABLE type ADD CONSTRAINT type_pk PRIMARY KEY ( classification,
+  2  reading_level );
+
+Table TYPE altered.
+
+SQL> 
+SQL> ALTER TABLE book
+  2      ADD CONSTRAINT book_branch_fk FOREIGN KEY ( branch_branch_code )
+  3          REFERENCES branch ( branch_code );
+
+Table BOOK altered.
+
+SQL> 
+SQL> ALTER TABLE book
+  2      ADD CONSTRAINT book_title_fk FOREIGN KEY ( title_call_number )
+  3          REFERENCES title ( call_number );
+
+Table BOOK altered.
+
+SQL> 
+SQL> ALTER TABLE borrower
+  2      ADD CONSTRAINT borrower_borrower_group_fk FOREIGN KEY ( borrower_group_classification2 )
+  3          REFERENCES borrower_group ( classification );
+
+Table BORROWER altered.
+
+SQL> 
+SQL> ALTER TABLE borrower
+  2      ADD CONSTRAINT borrower_branch_fk FOREIGN KEY ( branch_branch_code )
+  3          REFERENCES branch ( branch_code );
+
+Table BORROWER altered.
+
+SQL> 
+SQL> ALTER TABLE branch
+  2      ADD CONSTRAINT branch_manager_fk FOREIGN KEY ( manager_manager_id )
+  3          REFERENCES manager ( manager_id );
+
+Table BRANCH altered.
+
+SQL> 
+SQL> ALTER TABLE isbn_identifier
+  2      ADD CONSTRAINT isbn_identifier_title_fk FOREIGN KEY ( title_call_number )
+  3          REFERENCES title ( call_number );
+
+Table ISBN_IDENTIFIER altered.
+
+SQL> 
+SQL> ALTER TABLE loan
+  2      ADD CONSTRAINT loan_book_fk FOREIGN KEY ( book_barcode )
+  3          REFERENCES book ( barcode );
+
+Table LOAN altered.
+
+SQL> 
+SQL> ALTER TABLE loan
+  2      ADD CONSTRAINT loan_borrower_fk FOREIGN KEY ( borrower_borrower_id )
+  3          REFERENCES borrower ( borrower_id );
+
+Table LOAN altered.
+
+SQL> 
+SQL> ALTER TABLE manager
+  2      ADD CONSTRAINT manager_branch_fk FOREIGN KEY ( branch_branch_code )
+  3          REFERENCES branch ( branch_code );
+
+Table MANAGER altered.
+
+SQL> 
+SQL> ALTER TABLE penalty
+  2      ADD CONSTRAINT penalty_loan_fk FOREIGN KEY ( loan_loan_date,
+  3      loan_book_barcode,
+  4      loan_borrower_borrower_id )
+  5          REFERENCES loan ( loan_date,
+  6          book_barcode,
+  7          borrower_borrower_id );
+
+Table PENALTY altered.
+
+SQL> 
+SQL> ALTER TABLE reservation
+  2      ADD CONSTRAINT reservation_book_fk FOREIGN KEY ( book_barcode )
+  3          REFERENCES book ( barcode );
+
+Table RESERVATION altered.
+
+SQL> 
+SQL> ALTER TABLE reservation
+  2      ADD CONSTRAINT reservation_borrower_fk FOREIGN KEY ( borrower_borrower_id )
+  3          REFERENCES borrower ( borrower_id );
+
+Table RESERVATION altered.
+
+SQL> 
+SQL> ALTER TABLE title_author
+  2      ADD CONSTRAINT title_author_author_fk FOREIGN KEY ( author_author_id )
+  3          REFERENCES author ( author_id );
+
+Table TITLE_AUTHOR altered.
+
+SQL> 
+SQL> ALTER TABLE title_author
+  2      ADD CONSTRAINT title_author_title_fk FOREIGN KEY ( title_call_number )
+  3          REFERENCES title ( call_number );
+
+Table TITLE_AUTHOR altered.
+
+SQL> 
+SQL> ALTER TABLE title
+  2      ADD CONSTRAINT title_publisher_fk FOREIGN KEY ( publisher_publisher_id )
+  3          REFERENCES publisher ( publisher_id );
+
+Table TITLE altered.
+
+SQL> 
+SQL> ALTER TABLE title_subject
+  2      ADD CONSTRAINT title_subject_subject_fk FOREIGN KEY ( subject_subject )
+  3          REFERENCES subject ( subject );
+
+Table TITLE_SUBJECT altered.
+
+SQL> 
+SQL> ALTER TABLE title_subject
+  2      ADD CONSTRAINT title_subject_title_fk FOREIGN KEY ( title_call_number )
+  3          REFERENCES title ( call_number );
+
+Table TITLE_SUBJECT altered.
+
+SQL> 
+SQL> ALTER TABLE title
+  2      ADD CONSTRAINT title_type_fk FOREIGN KEY ( type_classification,
+  3      type_reading_level )
+  4          REFERENCES type ( classification,
+  5          reading_level );
+
+Table TITLE altered.
+
+SQL> 
+SQL> CREATE SEQUENCE author_author_id_seq START WITH 1 NOCACHE ORDER;
+
+Sequence AUTHOR_AUTHOR_ID_SEQ created.
+
+SQL> 
+SQL> CREATE SEQUENCE bor_borrower_id_seq START WITH 1 NOCACHE ORDER;
+
+Sequence BOR_BORROWER_ID_SEQ created.
+
+SQL> 
+SQL> CREATE SEQUENCE branch_branch_code_seq START WITH 100 MINVALUE 100 MAXVALUE 999 NOCACHE ORDER;
+
+Sequence BRANCH_BRANCH_CODE_SEQ created.
+
+SQL> 
+SQL> CREATE SEQUENCE manager_manager_id_seq START WITH 1 NOCACHE ORDER;
+
+Sequence MANAGER_MANAGER_ID_SEQ created.
+
+SQL> 
+SQL> CREATE SEQUENCE publisher_publisher_id_seq START WITH 1 NOCACHE ORDER;
+
+Sequence PUBLISHER_PUBLISHER_ID_SEQ created.
+
+SQL> 
+SQL> 
+SQL> 
+SQL> -- Oracle SQL Developer Data Modeler Summary Report: 
+SQL> -- 
+SQL> -- CREATE TABLE                            16
+SQL> -- CREATE INDEX                             3
+SQL> -- ALTER TABLE                             39
+SQL> -- CREATE VIEW                              0
+SQL> -- ALTER VIEW                               0
+SQL> -- CREATE PACKAGE                           0
+SQL> -- CREATE PACKAGE BODY                      0
+SQL> -- CREATE PROCEDURE                         0
+SQL> -- CREATE FUNCTION                          0
+SQL> -- CREATE TRIGGER                           0
+SQL> -- ALTER TRIGGER                            0
+SQL> -- CREATE COLLECTION TYPE                   0
+SQL> -- CREATE STRUCTURED TYPE                   0
+SQL> -- CREATE STRUCTURED TYPE BODY              0
+SQL> -- CREATE CLUSTER                           0
+SQL> -- CREATE CONTEXT                           0
+SQL> -- CREATE DATABASE                          0
+SQL> -- CREATE DIMENSION                         0
+SQL> -- CREATE DIRECTORY                         0
+SQL> -- CREATE DISK GROUP                        0
+SQL> -- CREATE ROLE                              0
+SQL> -- CREATE ROLLBACK SEGMENT                  0
+SQL> -- CREATE SEQUENCE                          5
+SQL> -- CREATE MATERIALIZED VIEW                 0
+SQL> -- CREATE SYNONYM                           0
+SQL> -- CREATE TABLESPACE                        0
+SQL> -- CREATE USER                              0
+SQL> -- 
+SQL> -- DROP TABLESPACE                          0
+SQL> -- DROP DATABASE                            0
+SQL> -- 
+SQL> -- REDACTION POLICY                         0
+SQL> -- 
+SQL> -- ORDS DROP SCHEMA                         0
+SQL> -- ORDS ENABLE SCHEMA                       0
+SQL> -- ORDS ENABLE OBJECT                       0
+SQL> -- 
+SQL> -- ERRORS                                   0
+SQL> -- WARNINGS                                 0
+SQL> SET echo OFF
